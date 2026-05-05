@@ -368,7 +368,7 @@ def delete_test_reagent_usage(
 _ITEM_CSV_COLUMNS = [
     "item_code", "name", "category", "unit", "current_stock", "minimum_stock",
     "supplier", "catalog_number", "storage_location", "storage_conditions",
-    "unit_cost", "expiry_date", "description", "notes",
+    "unit_cost", "description", "notes",
 ]
 
 
@@ -385,7 +385,6 @@ def export_items_csv(db: Session = Depends(get_db), _: User = Depends(get_curren
             i.supplier or "", i.catalog_number or "",
             i.storage_location or "", i.storage_conditions or "",
             i.unit_cost if i.unit_cost is not None else "",
-            i.expiry_date.isoformat() if i.expiry_date else "",
             (i.description or "").replace("\n", " "),
             (i.notes or "").replace("\n", " "),
         ])
@@ -444,11 +443,11 @@ def export_import_template(_: User = Depends(get_current_user)):
     writer.writerow([
         "item_code", "name", "category", "unit", "opening_stock", "minimum_stock",
         "supplier", "catalog_number", "storage_location", "storage_conditions",
-        "unit_cost", "expiry_date", "description",
+        "unit_cost", "description",
     ])
     writer.writerow([
         "RG-001", "Nitric Acid 65%", "reagent", "mL", "2500", "500",
-        "Loba", "LC-4421", "Shelf A2", "Room temp", "1.20", "2027-12-31",
+        "Loba", "LC-4421", "Shelf A2", "Room temp", "1.20",
         "AR grade, used in metals digestion",
     ])
     buf.seek(0)
@@ -469,16 +468,6 @@ def _parse_float(value: str) -> Optional[float]:
     if not value:
         return None
     return float(value)
-
-
-def _parse_date(value: str) -> Optional[date]:
-    value = (value or "").strip()
-    if not value:
-        return None
-    try:
-        return date.fromisoformat(value)
-    except ValueError:
-        return None
 
 
 @router.post("/import/items", response_model=CsvImportResult)
@@ -549,7 +538,6 @@ async def import_items_csv(
             "storage_conditions": (row.get("storage_conditions") or "").strip() or None,
             "unit_cost": unit_cost,
             "description": (row.get("description") or "").strip() or None,
-            "expiry_date": _parse_date(row.get("expiry_date", "")),
         }
 
         if existing:
