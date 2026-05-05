@@ -458,6 +458,7 @@ export interface InventoryItem {
   storage_location?: string;
   storage_conditions?: string;
   unit_cost?: number;
+  expiry_date?: string;
   is_active: number;
   is_low_stock: boolean;
   notes?: string;
