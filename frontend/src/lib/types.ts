@@ -261,6 +261,7 @@ export interface Equipment {
   manufacturer?: string;
   serial_number?: string;
   status: EquipmentStatus;
+  is_active: number;
   calibration_due_date?: string;
   last_calibration_date?: string;
   calibration_certificate_ref?: string;
